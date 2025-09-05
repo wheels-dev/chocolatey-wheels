@@ -29,9 +29,6 @@ This package provides a convenient wrapper around the CFWheels CommandBox CLI, m
     <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <docsUrl>https://guides.cfwheels.org/</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
-    <dependencies>
-      <dependency id="commandbox" version="5.0.0" />
-    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

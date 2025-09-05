@@ -1,49 +1,3 @@
-$ErrorActionPreference = 'Stop'
-
-$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-$packageName = 'wheels'
-
-# Check if CommandBox is installed
-$commandboxInstalled = $false
-try {
-    $commandboxPath = Get-Command box -ErrorAction SilentlyContinue
-    if ($commandboxPath) {
-        $commandboxInstalled = $true
-        Write-Host "CommandBox found at: $($commandboxPath.Source)"
-    }
-} catch {
-    # CommandBox not found
-}
-
-if (-not $commandboxInstalled) {
-    Write-Host "CommandBox is required but not installed." -ForegroundColor Yellow
-    Write-Host "Installing CommandBox from Chocolatey repository..." -ForegroundColor Green
-    
-    # Install CommandBox using choco command
-    $chocoInstallOutput = & choco install commandbox -y 2>&1
-    
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "CommandBox installed successfully!" -ForegroundColor Green
-        
-        # Refresh environment variables
-        Update-SessionEnvironment
-        
-        # Verify CommandBox installation
-        try {
-            $commandboxPath = Get-Command box -ErrorAction Stop
-            Write-Host "CommandBox found at: $($commandboxPath.Source)" -ForegroundColor Green
-        } catch {
-            Write-Warning "CommandBox was installed but 'box' command not found in PATH. You may need to restart your terminal."
-        }
-    } else {
-        Write-Host "CommandBox installation output:" -ForegroundColor Yellow
-        Write-Host $chocoInstallOutput
-        throw "Failed to install CommandBox. Please install it manually: choco install commandbox"
-    }
-}
-
-# Create the wheels wrapper script
-$wheelsScriptContent = @'
 @echo off
 setlocal enabledelayedexpansion
 
@@ -174,28 +128,3 @@ goto :parse_loop
 :: Pass converted arguments to box wheels
 box wheels !converted_args!
 exit /b %ERRORLEVEL%
-'@
-
-$wheelsScriptPath = Join-Path $toolsDir "wheels.cmd"
-Set-Content -Path $wheelsScriptPath -Value $wheelsScriptContent -Encoding UTF8
-
-# Create a shim for the wheels command
-Install-BinFile -Name 'wheels' -Path $wheelsScriptPath
-
-Write-Host "Wheels CLI wrapper installed successfully!" -ForegroundColor Green
-Write-Host ""
-Write-Host "You can now use 'wheels' command from any command prompt or PowerShell window." -ForegroundColor Green
-Write-Host "Example: wheels generate model User" -ForegroundColor Cyan
-Write-Host ""
-
-# Check if Wheels CLI is installed in CommandBox
-try {
-    $wheelsCliCheck = & box help wheels 2>&1
-    if ($wheelsCliCheck -match "Command.*not found") {
-        Write-Host "Note: Wheels CLI tools will be automatically installed on first use." -ForegroundColor Yellow
-    } else {
-        Write-Host "Wheels CLI tools are already installed in CommandBox." -ForegroundColor Green
-    }
-} catch {
-    Write-Host "Note: Wheels CLI tools will be checked and installed on first use." -ForegroundColor Yellow
-}
