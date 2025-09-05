@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>wheels</id>
+    <version>1.0.5</version>
+    <title>Wheels CLI</title>
+    <authors>wheels-dev</authors>
+    <owners>wheels-dev</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/wheels-dev/chocolatey-wheels</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/wheels-dev/chocolatey-wheels/master/icon.png</iconUrl>
+    <description>CLI wrapper for CFWheels MVC framework
+
+The wheels command allows you to run CFWheels CLI commands directly from your terminal without having to prefix them with 'box'.
+
+Instead of typing:
+  box wheels generate model User
+
+You can simply type:
+  wheels generate model User
+
+This package provides a convenient wrapper around the CFWheels CommandBox CLI, making it easier to work with CFWheels projects on Windows.</description>
+    <summary>CLI wrapper for CFWheels MVC framework - A convenient wrapper for the CFWheels CommandBox CLI</summary>
+    <releaseNotes>https://github.com/wheels-dev/chocolatey-wheels/releases</releaseNotes>
+    <copyright>Copyright 2024 wheels-dev</copyright>
+    <tags>wheels cfwheels mvc framework cli commandbox coldfusion lucee</tags>
+    <projectSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</projectSourceUrl>
+    <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
+    <docsUrl>https://guides.cfwheels.org/</docsUrl>
+    <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
+    <dependencies>
+      <dependency id="commandbox" version="5.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

@@ -1,0 +1,8 @@
+*.nupkg
+*.log
+.chocolatey/
+_build/
+temp/
+*.bak
+*.cache
+*.tmp
