@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\Users\\peter\\Git-projects\\homebrew-wheels\")",
+      "Read(//c/Users/peter/Git-projects/homebrew-wheels/**)",
+      "Bash(dir)",
+      "Bash(Get-ChildItem)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
