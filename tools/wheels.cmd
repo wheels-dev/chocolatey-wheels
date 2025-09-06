@@ -37,7 +37,7 @@ box help wheels
 exit /b 0
 
 :show_version
-echo wheels wrapper version 1.0.5
+echo wheels wrapper version 1.0.6
 echo Powered by:
 box version
 exit /b 0
