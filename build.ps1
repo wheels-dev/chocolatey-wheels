@@ -1,6 +1,6 @@
 # Build script for Wheels Chocolatey package
 param(
-    [string]$Version = "1.0.5",
+    [string]$Version = "1.0.6",
     [switch]$Push,
     [string]$ApiKey = $env:CHOCOLATEY_API_KEY,
     [string]$Source = "https://push.chocolatey.org/"
