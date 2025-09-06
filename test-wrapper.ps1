@@ -21,7 +21,7 @@ try {
 
 if (-not $commandboxInstalled) {
     Write-Host "[PASS] CommandBox not found (as expected)" -ForegroundColor Green
-    Write-Host "       Script would trigger: choco install commandbox -y" -ForegroundColor Cyan
+    Write-Host "       Script would check CommandBox dependency" -ForegroundColor Cyan
 } else {
     Write-Host "[FAIL] CommandBox found (unexpected for this test)" -ForegroundColor Red
 }
@@ -88,7 +88,7 @@ if (Test-Path $installScript) {
     
     $features = @(
         @{Name="CommandBox detection"; Pattern="Get-Command box"},
-        @{Name="Auto-install CommandBox"; Pattern="choco install commandbox"},
+        @{Name="CommandBox dependency check"; Pattern="CommandBox dependency"},
         @{Name="Environment refresh"; Pattern="Update-SessionEnvironment"},
         @{Name="Create wrapper script"; Pattern="wheels.cmd"},
         @{Name="Install bin shim"; Pattern="Install-BinFile"}

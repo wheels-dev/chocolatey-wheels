@@ -24,7 +24,7 @@ setlocal enabledelayedexpansion
 where box >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo Error: CommandBox is required but not found in PATH
-    echo Please install CommandBox: choco install commandbox
+    echo Please install CommandBox manually if this dependency was not installed
     exit /b 1
 )
 

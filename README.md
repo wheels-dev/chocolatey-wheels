@@ -20,15 +20,12 @@ wheels generate model User
 
 Install using Chocolatey:
 ```powershell
-choco install wheels
+Install-Package wheels -Provider Chocolatey
 ```
 
 ### Prerequisites
 
-This package depends on CommandBox, which will be automatically installed if you don't already have it:
-```powershell
-choco install commandbox
-```
+This package depends on CommandBox, which will be automatically installed as a dependency when you install this package.
 
 ## Usage
 
@@ -67,8 +64,8 @@ wheels --help
 If you encounter issues:
 
 1. **Command not found**: Make sure Chocolatey's bin directory is in your PATH
-2. **CommandBox not found**: Ensure CommandBox is installed: `choco install commandbox`
-3. **Permission issues**: Try reinstalling: `choco uninstall wheels && choco install wheels`
+2. **CommandBox not found**: CommandBox should be installed automatically as a dependency
+3. **Permission issues**: Try reinstalling the package through Chocolatey
 
 ## Building from Source
 
@@ -93,19 +90,16 @@ cd chocolatey-wheels
 
 To update to the latest version:
 ```powershell
-choco upgrade wheels
+Update-Package wheels -Provider Chocolatey
 ```
 
 ## Uninstalling
 
 ```powershell
-choco uninstall wheels
+Uninstall-Package wheels -Provider Chocolatey
 ```
 
-Note: This will only remove the wheels wrapper. CommandBox will remain installed unless you explicitly uninstall it:
-```powershell
-choco uninstall commandbox
-```
+Note: This will only remove the wheels wrapper. CommandBox will remain installed unless you explicitly uninstall it through Chocolatey as well.
 
 ## Contributing
 

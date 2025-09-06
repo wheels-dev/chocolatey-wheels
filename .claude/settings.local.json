@@ -1,19 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir \"C:\\Users\\peter\\Git-projects\\homebrew-wheels\")",
-      "Read(//c/Users/peter/Git-projects/homebrew-wheels/**)",
       "Bash(dir)",
-      "Bash(Get-ChildItem)",
-      "Bash(mkdir:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(where box)",
-      "Bash(where:*)",
-      "Bash(powershell:*)",
-      "Bash(choco install:*)",
-      "Bash(C:/Users/peter/Git-projects/chocolatey-wheels/tools/wheels.cmd --version)",
-      "Bash(Get-ChildItem -Path . -Filter \"*.nupkg\" -Recurse)"
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

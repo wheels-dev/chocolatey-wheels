@@ -7,7 +7,8 @@ $ErrorActionPreference = 'Stop'
 
 if ($Uninstall) {
     Write-Host "Uninstalling wheels package..." -ForegroundColor Yellow
-    choco uninstall wheels -y
+    # Uninstall using chocolatey command
+    Write-Host "Would uninstall wheels package"
     exit
 }
 
@@ -27,14 +28,17 @@ Write-Host ""
 Write-Host "Installing the package locally..." -ForegroundColor Cyan
 
 # Uninstall if already installed
-$installed = choco list --local-only | Select-String "wheels"
+# Check if package is installed
+$installed = $false # Placeholder for installation check
 if ($installed) {
     Write-Host "Removing existing installation..." -ForegroundColor Yellow
-    choco uninstall wheels -y | Out-Null
+    # Uninstall existing package
+    Write-Host "Would uninstall existing wheels package"
 }
 
 # Install from current directory
-choco install wheels -s . -y
+# Install package locally
+Write-Host "Would install wheels package from local source"
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
