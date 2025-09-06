@@ -1,37 +1,40 @@
-# CFWheels Chocolatey Package
+# Wheels Chocolatey Package
 
-This package provides the `wheels` command-line tool for Windows, which serves as a convenient wrapper for the CFWheels CommandBox CLI.
+This package provides the `wheels` command-line tool for Windows, which serves as a convenient wrapper for the Wheels CommandBox CLI.
 
 ## What it does
 
-The `wheels` command allows you to run CFWheels CLI commands directly from your terminal without having to prefix them with `box`. 
+The `wheels` command allows you to run Wheels CLI commands directly from your command prompt or PowerShell without having to prefix them with `box`. 
 
 Instead of typing:
-```powershell
+```cmd
 box wheels generate model User
 ```
 
 You can simply type:
-```powershell
+```cmd
 wheels generate model User
 ```
 
 ## Installation
 
 Install using Chocolatey:
-```powershell
-Install-Package wheels -Provider Chocolatey
+```cmd
+choco install wheels
 ```
 
 ### Prerequisites
 
-This package depends on CommandBox, which will be automatically installed as a dependency when you install this package.
+This package depends on CommandBox, which will be automatically installed if you don't already have it:
+```cmd
+choco install commandbox
+```
 
 ## Usage
 
-Once installed, you can use the `wheels` command exactly like you would use `box wheels`:
+Once installed, you can use the `wheels` command from any Command Prompt or PowerShell session:
 
-```powershell
+```cmd
 # Generate a new model
 wheels generate model User
 
@@ -45,17 +48,48 @@ wheels server start
 wheels --help
 ```
 
+The package installs both:
+- `wheels.bat` - for Command Prompt
+- `wheels.ps1` - for PowerShell
+
 All arguments are passed through to the underlying `box wheels` command.
+
+## Building the Package
+
+If you want to build this package locally:
+
+1. Install Chocolatey and the `choco` command
+2. Clone this repository
+3. Run the build command:
+   ```cmd
+   choco pack
+   ```
+4. Install the local package:
+   ```cmd
+   choco install wheels -s .
+   ```
+
+## Package Structure
+
+```
+chocolatey-wheels/
+├── wheels.nuspec                    # Package specification
+├── tools/
+│   ├── chocolateyinstall.ps1      # Installation script
+│   └── chocolateyuninstall.ps1    # Uninstall script
+├── README.md
+└── LICENSE
+```
 
 ## Verification
 
 To verify the installation worked correctly:
 
-```powershell
+```cmd
 # Check that the command is available
 where wheels
 
-# Test the command (will show CFWheels CLI help)
+# Test the command (will show Wheels CLI help)
 wheels --help
 ```
 
@@ -63,47 +97,37 @@ wheels --help
 
 If you encounter issues:
 
-1. **Command not found**: Make sure Chocolatey's bin directory is in your PATH
-2. **CommandBox not found**: CommandBox should be installed automatically as a dependency
-3. **Permission issues**: Try reinstalling the package through Chocolatey
-
-## Building from Source
-
-To build the Chocolatey package from source:
-
-```powershell
-# Clone the repository
-git clone https://github.com/wheels-dev/chocolatey-wheels.git
-cd chocolatey-wheels
-
-# Build the package
-.\build.ps1
-
-# Test locally
-.\test-local.ps1
-
-# Push to Chocolatey (requires API key)
-.\build.ps1 -Push -ApiKey YOUR_API_KEY
-
-# Or manually submit to Chocolatey
-choco pack
-choco push wheels.1.0.5.nupkg --source https://push.chocolatey.org/
-```
+1. **Command not found**: 
+   - Restart your command prompt/PowerShell
+   - Check that Chocolatey's tools directory is in your PATH
+   
+2. **CommandBox not found**: 
+   - Ensure CommandBox is installed from https://www.ortussolutions.com/products/commandbox
+   - Restart your command prompt after installation
+   
+3. **Permission issues**: 
+   - Run as Administrator: `choco install wheels --force`
 
 ## Updating
 
 To update to the latest version:
-```powershell
-Update-Package wheels -Provider Chocolatey
+```cmd
+choco upgrade wheels
 ```
 
 ## Uninstalling
 
-```powershell
-Uninstall-Package wheels -Provider Chocolatey
+```cmd
+choco uninstall wheels
 ```
 
-Note: This will only remove the wheels wrapper. CommandBox will remain installed unless you explicitly uninstall it through Chocolatey as well.
+## Publishing to Chocolatey Community Repository
+
+To submit this package to the official Chocolatey repository:
+
+1. Create an account at https://chocolatey.org/
+2. Generate an API key
+3. Run: `choco push wheels.1.0.0.nupkg --source https://push.chocolatey.org/`
 
 ## Contributing
 

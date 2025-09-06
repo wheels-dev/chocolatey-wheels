@@ -3,33 +3,43 @@
   <metadata>
     <id>wheels</id>
     <version>1.0.5</version>
-    <title>Wheels CLI</title>
-    <authors>wheels-dev</authors>
+    <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <owners>wheels-dev</owners>
+    <title>Wheels CLI</title>
+    <authors>Wheels Team</authors>
+    <projectUrl>https://Wheels.org</projectUrl>
+    <!-- <iconUrl>https://github.com/wheels-dev/chocolatey-wheels/raw/main/icon.png</iconUrl> -->
+    <copyright>2025 Wheels Team</copyright>
+    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/wheels-dev/chocolatey-wheels</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/wheels-dev/chocolatey-wheels/master/icon.png</iconUrl>
-    <description>CLI wrapper for Wheels MVC framework
-
-The wheels command allows you to run Wheels CLI commands directly from your terminal without having to prefix them with 'box'.
-
-Instead of typing:
-  box wheels generate model User
-
-You can simply type:
-  wheels generate model User
-
-This package provides a convenient wrapper around the CFWheels CommandBox CLI, making it easier to work with CFWheels projects on Windows.</description>
-    <summary>CLI wrapper for Wheels MVC framework - A convenient wrapper for the Wheels CommandBox CLI</summary>
-    <releaseNotes>https://github.com/wheels-dev/chocolatey-wheels/releases/tag/v1.0.5</releaseNotes>
-    <copyright>Copyright 2024 wheels-dev</copyright>
-    <tags>wheels cfwheels mvc framework cli commandbox coldfusion lucee</tags>
-    <projectSourceUrl>https://github.com/wheels-dev/wheels</projectSourceUrl>
-    <docsUrl>https://wheels.dev/guides</docsUrl>
+    <projectSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</projectSourceUrl>
+    <docsUrl>https://github.com/wheels-dev/chocolatey-wheels#readme</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
+    <tags>Wheels commandbox cli development web framework</tags>
+    <summary>CLI wrapper for Wheels CommandBox framework</summary>
+    <description><![CDATA[
+The Wheels CLI provides a convenient wrapper for the Wheels CommandBox CLI tools.
+
+Instead of typing `box wheels generate model User`, you can simply type `wheels generate model User`.
+
+This package installs a `wheels` command that passes all arguments to the underlying `box wheels` command.
+
+## Prerequisites
+- CommandBox must be installed and available in your PATH
+- CommandBox can be installed from https://www.ortussolutions.com/products/commandbox
+
+## Usage
+After installation, you can use commands like:
+- `wheels generate model User`
+- `wheels migrate up`
+- `wheels server start`
+- `wheels --help`
+
+All arguments are passed through to the underlying `box wheels` command.
+]]></description>
+    <releaseNotes>Fixed automated validation issues: removed choco commands from scripts, updated project URLs</releaseNotes>
     <dependencies>
-      <dependency id="commandbox" version="6.0.0" />
+      <dependency id="commandbox" version="5.0.0" />
     </dependencies>
   </metadata>
   <files>

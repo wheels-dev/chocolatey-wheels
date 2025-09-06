@@ -1,11 +1,20 @@
 $ErrorActionPreference = 'Stop'
 
 $packageName = 'wheels'
+$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
-# Remove the wheels shim
-Uninstall-BinFile -Name 'wheels'
+# Remove the wrapper scripts
+$batchFile = Join-Path $toolsDir "wheels.bat"
+$psFile = Join-Path $toolsDir "wheels.ps1"
 
-Write-Host "Wheels CLI wrapper has been uninstalled." -ForegroundColor Green
-Write-Host ""
-Write-Host "Note: CommandBox and Wheels CLI tools remain installed." -ForegroundColor Yellow
-Write-Host "CommandBox will remain installed and can be uninstalled separately if needed" -ForegroundColor Cyan
+if (Test-Path $batchFile) {
+    Remove-Item $batchFile -Force
+    Write-Host "Removed wheels.bat"
+}
+
+if (Test-Path $psFile) {
+    Remove-Item $psFile -Force
+    Write-Host "Removed wheels.ps1"
+}
+
+Write-Host "Wheels CLI wrapper has been uninstalled."
