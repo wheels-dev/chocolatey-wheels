@@ -22,13 +22,16 @@ You can simply type:
 
 This package provides a convenient wrapper around the CFWheels CommandBox CLI, making it easier to work with CFWheels projects on Windows.</description>
     <summary>CLI wrapper for CFWheels MVC framework - A convenient wrapper for the CFWheels CommandBox CLI</summary>
-    <releaseNotes>https://github.com/wheels-dev/chocolatey-wheels/releases</releaseNotes>
+    <releaseNotes>https://github.com/wheels-dev/chocolatey-wheels/releases/tag/v1.0.5</releaseNotes>
     <copyright>Copyright 2024 wheels-dev</copyright>
     <tags>wheels cfwheels mvc framework cli commandbox coldfusion lucee</tags>
-    <projectSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</projectSourceUrl>
+    <projectSourceUrl>https://github.com/cfwheels/cfwheels</projectSourceUrl>
     <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <docsUrl>https://guides.cfwheels.org/</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
+    <dependencies>
+      <dependency id="commandbox" version="6.0.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

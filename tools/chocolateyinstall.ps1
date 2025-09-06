@@ -3,43 +3,13 @@ $ErrorActionPreference = 'Stop'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $packageName = 'wheels'
 
-# Check if CommandBox is installed
-$commandboxInstalled = $false
+# Verify CommandBox is available (should be installed via dependency)
 try {
-    $commandboxPath = Get-Command box -ErrorAction SilentlyContinue
-    if ($commandboxPath) {
-        $commandboxInstalled = $true
-        Write-Host "CommandBox found at: $($commandboxPath.Source)"
-    }
+    $commandboxPath = Get-Command box -ErrorAction Stop
+    Write-Host "CommandBox found at: $($commandboxPath.Source)" -ForegroundColor Green
 } catch {
-    # CommandBox not found
-}
-
-if (-not $commandboxInstalled) {
-    Write-Host "CommandBox is required but not installed." -ForegroundColor Yellow
-    Write-Host "Installing CommandBox from Chocolatey repository..." -ForegroundColor Green
-    
-    # Install CommandBox using choco command
-    $chocoInstallOutput = & choco install commandbox -y 2>&1
-    
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "CommandBox installed successfully!" -ForegroundColor Green
-        
-        # Refresh environment variables
-        Update-SessionEnvironment
-        
-        # Verify CommandBox installation
-        try {
-            $commandboxPath = Get-Command box -ErrorAction Stop
-            Write-Host "CommandBox found at: $($commandboxPath.Source)" -ForegroundColor Green
-        } catch {
-            Write-Warning "CommandBox was installed but 'box' command not found in PATH. You may need to restart your terminal."
-        }
-    } else {
-        Write-Host "CommandBox installation output:" -ForegroundColor Yellow
-        Write-Host $chocoInstallOutput
-        throw "Failed to install CommandBox. Please install it manually: choco install commandbox"
-    }
+    Write-Error "CommandBox is required but not found in PATH. This should have been installed automatically as a dependency."
+    throw "CommandBox dependency not found. Please ensure CommandBox is properly installed."
 }
 
 # Create the wheels wrapper script
