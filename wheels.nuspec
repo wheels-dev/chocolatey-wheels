@@ -20,7 +20,7 @@ Instead of typing:
 You can simply type:
   wheels generate model User
 
-This package provides a convenient wrapper around the CFWheels CommandBox CLI, making it easier to work with CFWheels projects on Windows.</description>
+This package provides a convenient wrapper around the Wheels CommandBox CLI, making it easier to work with Wheels projects on Windows.</description>
     <summary>CLI wrapper for Wheels MVC framework - A convenient wrapper for the Wheels CommandBox CLI</summary>
     <releaseNotes>https://github.com/wheels-dev/chocolatey-wheels/releases/tag/v1.0.5</releaseNotes>
     <copyright>Copyright 2024 wheels-dev</copyright>
