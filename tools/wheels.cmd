@@ -125,6 +125,18 @@ shift
 goto :parse_loop
 
 :execute
-:: Pass converted arguments to box wheels
-box wheels !converted_args!
+:: Check if first argument is "server" and handle it specially
+set "firstArg="
+for /f "tokens=1" %%a in ("!converted_args!") do set "firstArg=%%a"
+
+if /i "!firstArg!"=="server" (
+    :: Remove "server" from the converted_args and pass directly to box server
+    set "serverArgs=!converted_args:server=!"
+    :: Trim leading space if any
+    for /f "tokens=* delims= " %%a in ("!serverArgs!") do set "serverArgs=%%a"
+    box server !serverArgs!
+) else (
+    :: Pass all arguments to box wheels as before
+    box wheels !converted_args!
+)
 exit /b %ERRORLEVEL%
