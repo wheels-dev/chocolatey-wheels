@@ -10,7 +10,6 @@
     <projectUrl>https://Wheels.org</projectUrl>
     <!-- <iconUrl>https://github.com/wheels-dev/chocolatey-wheels/raw/main/icon.png</iconUrl> -->
     <copyright>2025 Wheels Team</copyright>
-    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/wheels-dev/chocolatey-wheels</projectUrl>
