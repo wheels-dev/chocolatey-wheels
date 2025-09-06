@@ -84,6 +84,10 @@ cd chocolatey-wheels
 
 # Push to Chocolatey (requires API key)
 .\build.ps1 -Push -ApiKey YOUR_API_KEY
+
+# Or manually submit to Chocolatey
+choco pack
+choco push wheels.1.0.5.nupkg --source https://push.chocolatey.org/
 ```
 
 ## Updating
