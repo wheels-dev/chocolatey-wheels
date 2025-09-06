@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>wheels</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <owners>wheels-dev</owners>
     <title>Wheels CLI</title>
@@ -12,6 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
     <projectSourceUrl>https://github.com/wheels-dev/wheels</projectSourceUrl>
+    <iconUrl>https://github.com/wheels-dev/wheels/raw/master/wheels-logo.png</iconUrl>
     <docsUrl>https://wheels.dev/guides</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
     <tags>wheels mvc framework cli commandbox coldfusion lucee</tags>
@@ -36,7 +37,7 @@ After installation, you can use commands like:
 
 All arguments are passed through to the underlying `box wheels` command.
 ]]></description>
-    <releaseNotes>Fixed automated validation issues: removed choco commands from scripts, updated project URLs</releaseNotes>
+    <releaseNotes>Fixed automated validation issues: added icon URL, confirmed package scripts contain no choco commands</releaseNotes>
     <dependencies>
       <dependency id="commandbox" version="5.0.0" />
     </dependencies>
