@@ -39,7 +39,7 @@ All arguments are passed through to the underlying `box wheels` command.
 ]]></description>
     <releaseNotes>Fixed automated validation issues: added icon URL, confirmed package scripts contain no choco commands</releaseNotes>
     <dependencies>
-      <dependency id="commandbox" version="1.0.0," />
+      <dependency id="commandbox" version="1.0.0" />
     </dependencies>
   </metadata>
   <files>
