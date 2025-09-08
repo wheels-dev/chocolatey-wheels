@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
     <projectSourceUrl>https://github.com/wheels-dev/wheels</projectSourceUrl>
-    <iconUrl>https://github.com/wheels-dev/wheels/raw/master/wheels-logo.png</iconUrl>
+    <iconUrl>https://github.com/wheels-dev/chocolatey-wheels/logo_mark.png</iconUrl>
     <docsUrl>https://wheels.dev/guides</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
     <tags>wheels mvc framework cli commandbox coldfusion lucee</tags>
