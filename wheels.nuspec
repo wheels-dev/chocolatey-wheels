@@ -2,44 +2,46 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>wheels</id>
-    <version>1.0.6</version>
+    <version>2.0.0</version>
     <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <owners>wheels-dev</owners>
     <title>Wheels CLI</title>
     <authors>Wheels Team</authors>
     <projectUrl>https://github.com/wheels-dev/chocolatey-wheels</projectUrl>
-    <copyright>Copyright 2025 Wheels Team</copyright>
+    <copyright>Copyright 2026 Wheels Team</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
     <projectSourceUrl>https://github.com/wheels-dev/wheels</projectSourceUrl>
     <iconUrl>https://github.com/wheels-dev/chocolatey-wheels/logo_mark.png</iconUrl>
     <docsUrl>https://wheels.dev/guides</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
-    <tags>wheels mvc framework cli commandbox coldfusion lucee</tags>
-    <summary>CLI wrapper for Wheels MVC framework - A convenient wrapper for the Wheels CommandBox CLI</summary>
+    <tags>wheels mvc framework cli lucli coldfusion lucee</tags>
+    <summary>CLI wrapper for Wheels MVC framework powered by LuCLI</summary>
     <description><![CDATA[
-The Wheels CLI provides a convenient wrapper for the Wheels CommandBox CLI tools.
-
-Instead of typing `box wheels generate model User`, you can simply type `wheels generate model User`.
-
-This package installs a `wheels` command that passes all arguments to the underlying `box wheels` command.
-
-## Prerequisites
-- CommandBox must be installed and available in your PATH
-- CommandBox can be installed from https://www.ortussolutions.com/products/commandbox
+The Wheels CLI provides a convenient `wheels` command for the Wheels MVC framework, powered by LuCLI.
 
 ## Usage
-After installation, you can use commands like:
+After installation, use commands like:
 - `wheels generate model User`
 - `wheels migrate up`
 - `wheels server start`
 - `wheels --help`
 
-All arguments are passed through to the underlying `box wheels` command.
+All arguments are passed through to `lucli wheels`.
+
+## Prerequisites
+- LuCLI must be installed and available in your PATH
+- Install LuCLI via: `choco install lucli`
+
+## What's New in 2.0
+- Powered by LuCLI instead of CommandBox
+- Native CLI argument handling (no conversion needed)
+- Built-in MCP server support for AI-assisted development
+- Dramatically simpler wrapper (standard CLI conventions)
 ]]></description>
-    <releaseNotes>Fixed automated validation issues: added icon URL, confirmed package scripts contain no choco commands</releaseNotes>
+    <releaseNotes>Major: switched backend from CommandBox to LuCLI. Simplified wrapper scripts. Added MCP support.</releaseNotes>
     <dependencies>
-      <dependency id="commandbox" version="1.0.0" />
+      <dependency id="lucli" version="1.0.0" />
     </dependencies>
   </metadata>
   <files>

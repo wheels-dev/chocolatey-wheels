@@ -2,55 +2,44 @@ $ErrorActionPreference = 'Stop'
 
 $packageName = 'wheels'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+$moduleUrl = 'https://github.com/wheels-dev/wheels/archive/refs/heads/develop.tar.gz'
 
-# Create the wheels.bat wrapper script
-$batchContent = @'
-@echo off
-REM Wheels CLI wrapper for CommandBox
-REM Passes all arguments to 'box wheels'
-
-REM Check if CommandBox is available
-where box >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo Error: CommandBox is required but not found in PATH
-    echo Please install CommandBox from https://www.ortussolutions.com/products/commandbox
-    exit /b 1
-)
-
-REM Pass all arguments to box wheels
-box wheels %*
-'@
-
-$batchFile = Join-Path $toolsDir "wheels.bat"
-$batchContent | Out-File -FilePath $batchFile -Encoding ASCII
-
-Write-Host "Created wheels.bat wrapper script at: $batchFile"
-
-# Create the wheels.ps1 PowerShell script as well for PowerShell users
-$psContent = @'
-# Wheels CLI wrapper for CommandBox
-# Passes all arguments to 'box wheels'
-
-# Check if CommandBox is available
-if (-not (Get-Command "box" -ErrorAction SilentlyContinue)) {
-    Write-Error "CommandBox is required but not found in PATH. Please install CommandBox from https://www.ortussolutions.com/products/commandbox"
+# Verify LuCLI is available (installed as a dependency)
+if (-not (Get-Command "lucli" -ErrorAction SilentlyContinue)) {
+    Write-Error "LuCLI is required but not found in PATH. The lucli dependency should have been installed automatically."
     exit 1
 }
 
-# Pass all arguments to box wheels
-& box wheels @args
-'@
+# Install the Wheels module for LuCLI
+Write-Host "Installing Wheels CLI module for LuCLI..." -ForegroundColor Cyan
+lucli modules install wheels --url $moduleUrl
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Failed to install Wheels module via LuCLI. The 'wheels' command will attempt module installation on first use."
+}
 
+# Create wheels.bat wrapper for cmd.exe users
+$batchContent = @'
+@echo off
+lucli wheels %*
+'@
+$batchFile = Join-Path $toolsDir "wheels.bat"
+$batchContent | Out-File -FilePath $batchFile -Encoding ASCII
+Write-Host "Created wheels.bat wrapper at: $batchFile"
+
+# Create wheels.ps1 wrapper for PowerShell users
+$psContent = @'
+if (-not (Get-Command "lucli" -ErrorAction SilentlyContinue)) {
+    Write-Error "LuCLI is required but not found in PATH. Install via: choco install lucli"
+    exit 1
+}
+& lucli wheels @args
+'@
 $psFile = Join-Path $toolsDir "wheels.ps1"
 $psContent | Out-File -FilePath $psFile -Encoding UTF8
+Write-Host "Created wheels.ps1 wrapper at: $psFile"
 
-Write-Host "Created wheels.ps1 PowerShell script at: $psFile"
-
-# Install the batch file to make it available in PATH
-# The tools directory is automatically added to PATH by Chocolatey
-
-Write-Host "Wheels CLI wrapper installed successfully!"
-Write-Host "You can now use 'wheels' command from any command prompt or PowerShell session."
+Write-Host ""
+Write-Host "Wheels CLI installed successfully! (powered by LuCLI)" -ForegroundColor Green
 Write-Host ""
 Write-Host "Example usage:"
 Write-Host "  wheels generate model User"

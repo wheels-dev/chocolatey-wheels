@@ -1,4 +1,5 @@
 *.log
+*.nupkg
 .chocolatey/
 _build/
 temp/

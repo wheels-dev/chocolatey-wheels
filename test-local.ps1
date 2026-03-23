@@ -7,13 +7,19 @@ $ErrorActionPreference = 'Stop'
 
 if ($Uninstall) {
     Write-Host "Uninstalling wheels package..." -ForegroundColor Yellow
-    # Uninstall using chocolatey command
-    Write-Host "Would uninstall wheels package"
+    choco uninstall wheels -y 2>$null
+    Write-Host "Done."
     exit
 }
 
-Write-Host "Testing local installation of Wheels package" -ForegroundColor Green
+Write-Host "Testing local installation of Wheels package (LuCLI)" -ForegroundColor Green
 Write-Host ""
+
+# Pre-check: LuCLI must be available
+if (-not (Get-Command "lucli" -ErrorAction SilentlyContinue)) {
+    Write-Warning "LuCLI is not installed. Install it first: choco install lucli"
+    Write-Host "Continuing with package build only..." -ForegroundColor Yellow
+}
 
 # Build the package first
 Write-Host "Building the package..." -ForegroundColor Cyan
@@ -28,36 +34,33 @@ Write-Host ""
 Write-Host "Installing the package locally..." -ForegroundColor Cyan
 
 # Uninstall if already installed
-# Check if package is installed
-$installed = $false # Placeholder for installation check
-if ($installed) {
-    Write-Host "Removing existing installation..." -ForegroundColor Yellow
-    # Uninstall existing package
-    Write-Host "Would uninstall existing wheels package"
-}
+choco uninstall wheels -y 2>$null
 
 # Install from current directory
-# Install package locally
-Write-Host "Would install wheels package from local source"
+$nupkg = Get-ChildItem -Filter "*.nupkg" | Select-Object -First 1
+if ($nupkg) {
+    choco install wheels --source "." -y
+} else {
+    Write-Error "No .nupkg file found. Run build.ps1 first."
+    exit 1
+}
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
     Write-Host "Installation successful!" -ForegroundColor Green
     Write-Host ""
-    
+
     # Test the installation
     Write-Host "Testing the wheels command..." -ForegroundColor Cyan
-    
-    # Check if wheels command exists
+
     $wheelsPath = Get-Command wheels -ErrorAction SilentlyContinue
     if ($wheelsPath) {
         Write-Host "Wheels command found at: $($wheelsPath.Source)" -ForegroundColor Green
-        
-        # Try to run wheels version
+
         Write-Host ""
         Write-Host "Running 'wheels --version':" -ForegroundColor Yellow
         wheels --version
-        
+
         Write-Host ""
         Write-Host "Test completed successfully!" -ForegroundColor Green
         Write-Host ""
@@ -69,7 +72,7 @@ if ($LASTEXITCODE -eq 0) {
     } else {
         Write-Warning "Wheels command not found in PATH. You may need to restart your terminal."
     }
-    
+
     Write-Host ""
     Write-Host "To uninstall the test installation, run:" -ForegroundColor Yellow
     Write-Host "  .\test-local.ps1 -Uninstall" -ForegroundColor Cyan
