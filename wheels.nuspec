@@ -1,45 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+<package xmlns="http://schemas.chocolatey.org/2010/07/nuspec">
   <metadata>
     <id>wheels</id>
-    <version>1.0.6</version>
-    <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
-    <owners>wheels-dev</owners>
+    <version>2.0.0</version>
     <title>Wheels CLI</title>
     <authors>Wheels Team</authors>
-    <projectUrl>https://github.com/wheels-dev/chocolatey-wheels</projectUrl>
-    <copyright>Copyright 2025 Wheels Team</copyright>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
+    <owners>wheels-dev</owners>
+    <summary>CLI for the Wheels MVC framework</summary>
+    <description>Command-line tool for the Wheels MVC framework, powered by LuCLI. Provides project scaffolding, code generation, database migrations, testing, and server management.
+
+## Features
+- `wheels new myapp` — scaffold new projects
+- `wheels generate model User` — code generation
+- `wheels test` — run test suite
+- `wheels server start` — development server
+- `wheels dbmigrate latest` — database migrations
+
+## Requirements
+- Java 21 or later
+    </description>
+    <projectUrl>https://wheels.dev</projectUrl>
     <projectSourceUrl>https://github.com/wheels-dev/wheels</projectSourceUrl>
-    <iconUrl>https://github.com/wheels-dev/chocolatey-wheels/logo_mark.png</iconUrl>
+    <packageSourceUrl>https://github.com/wheels-dev/chocolatey-wheels</packageSourceUrl>
     <docsUrl>https://wheels.dev/guides</docsUrl>
     <bugTrackerUrl>https://github.com/wheels-dev/chocolatey-wheels/issues</bugTrackerUrl>
-    <tags>wheels mvc framework cli commandbox coldfusion lucee</tags>
-    <summary>CLI wrapper for Wheels MVC framework - A convenient wrapper for the Wheels CommandBox CLI</summary>
-    <description><![CDATA[
-The Wheels CLI provides a convenient wrapper for the Wheels CommandBox CLI tools.
-
-Instead of typing `box wheels generate model User`, you can simply type `wheels generate model User`.
-
-This package installs a `wheels` command that passes all arguments to the underlying `box wheels` command.
-
-## Prerequisites
-- CommandBox must be installed and available in your PATH
-- CommandBox can be installed from https://www.ortussolutions.com/products/commandbox
-
-## Usage
-After installation, you can use commands like:
-- `wheels generate model User`
-- `wheels migrate up`
-- `wheels server start`
-- `wheels --help`
-
-All arguments are passed through to the underlying `box wheels` command.
-]]></description>
-    <releaseNotes>Fixed automated validation issues: added icon URL, confirmed package scripts contain no choco commands</releaseNotes>
+    <tags>wheels mvc framework cli lucee cfml lucli</tags>
+    <copyright>2026 Wheels Team</copyright>
+    <licenseUrl>https://github.com/wheels-dev/chocolatey-wheels/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://raw.githubusercontent.com/wheels-dev/chocolatey-wheels/master/logo_mark.png</iconUrl>
+    <releaseNotes>Rewritten for LuCLI-based Wheels CLI. Replaces CommandBox dependency with LuCLI + Java 21.</releaseNotes>
     <dependencies>
-      <dependency id="commandbox" version="1.0.0" />
+      <dependency id="openjdk" version="21.0.0" />
     </dependencies>
   </metadata>
   <files>
