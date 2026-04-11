@@ -1,0 +1,81 @@
+name: Auto-Update Package
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-updates:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for updates
+        id: check
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $installScript = Get-Content tools/chocolateyinstall.ps1 -Raw
+          $currentLucli = [regex]::Match($installScript, 'lucliVersion = "([^"]+)"').Groups[1].Value
+          $currentModule = [regex]::Match($installScript, 'moduleVersion = "([^"]+)"').Groups[1].Value
+          "current_lucli=$currentLucli" >> $env:GITHUB_OUTPUT
+          "current_module=$currentModule" >> $env:GITHUB_OUTPUT
+
+          $latestLucli = (gh release view --repo cybersonic/LuCLI --json tagName -q '.tagName') -replace '^v', ''
+          "latest_lucli=$latestLucli" >> $env:GITHUB_OUTPUT
+
+          $releases = gh release list --repo wheels-dev/wheels --limit 20 --json tagName,assets | ConvertFrom-Json
+          $latestModule = ($releases | Where-Object { $_.assets.name -match 'wheels-module.*\.zip' } | Select-Object -First 1).tagName -replace '^v', ''
+          "latest_module=$latestModule" >> $env:GITHUB_OUTPUT
+
+          $needsUpdate = ($currentLucli -ne $latestLucli -and $latestLucli) -or ($currentModule -ne $latestModule -and $latestModule)
+          "needs_update=$($needsUpdate.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
+      - name: Update install script
+        if: steps.check.outputs.needs_update == 'true'
+        shell: pwsh
+        run: |
+          $lucliVer = "${{ steps.check.outputs.latest_lucli }}"
+          $moduleVer = "${{ steps.check.outputs.latest_module }}"
+
+          $content = Get-Content tools/chocolateyinstall.ps1 -Raw
+          $content = $content -replace 'lucliVersion = "[^"]+"', "lucliVersion = `"$lucliVer`""
+          $content = $content -replace 'moduleVersion = "[^"]+"', "moduleVersion = `"$moduleVer`""
+          Set-Content tools/chocolateyinstall.ps1 $content
+
+          [xml]$nuspec = Get-Content wheels.nuspec
+          $nuspec.package.metadata.version = $lucliVer
+          $nuspec.Save("wheels.nuspec")
+
+      - name: Create PR
+        if: steps.check.outputs.needs_update == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LUCLI_VER="${{ steps.check.outputs.latest_lucli }}"
+          MODULE_VER="${{ steps.check.outputs.latest_module }}"
+          BRANCH="auto-update/lucli-${LUCLI_VER}-module-${MODULE_VER}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "chore: update to LuCLI ${LUCLI_VER}, module ${MODULE_VER}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: update to LuCLI ${LUCLI_VER}, module ${MODULE_VER}" \
+            --body "Auto-update from upstream releases." \
+            --label "auto-update"
+
+          PR_URL=$(gh pr list --head "$BRANCH" --json url -q '.[0].url')
+          if [ -n "$PR_URL" ]; then
+            gh pr merge "$PR_URL" --auto --squash
+          fi
