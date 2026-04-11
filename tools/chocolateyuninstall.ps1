@@ -1,20 +1,16 @@
 $ErrorActionPreference = 'Stop'
 
-$packageName = 'wheels'
-$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+$toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-# Remove the wrapper scripts
-$batchFile = Join-Path $toolsDir "wheels.bat"
-$psFile = Join-Path $toolsDir "wheels.ps1"
-
-if (Test-Path $batchFile) {
-    Remove-Item $batchFile -Force
-    Write-Host "Removed wheels.bat"
+# Clean up downloaded files
+$filesToRemove = @("lucli.bat", "wheels-module.zip")
+foreach ($file in $filesToRemove) {
+    $path = Join-Path $toolsDir $file
+    if (Test-Path $path) { Remove-Item $path -Force }
 }
 
-if (Test-Path $psFile) {
-    Remove-Item $psFile -Force
-    Write-Host "Removed wheels.ps1"
-}
+$moduleDir = Join-Path $toolsDir "module"
+if (Test-Path $moduleDir) { Remove-Item $moduleDir -Recurse -Force }
 
-Write-Host "Wheels CLI wrapper has been uninstalled."
+Write-Host "Wheels CLI uninstalled." -ForegroundColor Green
+Write-Host "Note: ~/.wheels/ directory was not removed. Delete it manually if desired." -ForegroundColor Yellow
