@@ -25,6 +25,24 @@ Remove-Item $modulePath -Force
 # Write version marker
 Set-Content -Path (Join-Path $moduleDir ".module-version") -Value $moduleVersion
 
+# Download Wheels framework source (vendor/wheels/). Mirrors the homebrew
+# formula's `wheels_core` resource — required so that ${HOME}/.wheels/modules/
+# wheels/vendor/wheels/ is populated. The zip's top-level entry is "wheels/",
+# which Expand-Archive preserves (unlike brew's resource.stage).
+$frameworkUrl = "https://github.com/wheels-dev/wheels/releases/download/v${moduleVersion}/wheels-core-${moduleVersion}.zip"
+$frameworkPath = Join-Path $toolsDir "wheels-core.zip"
+Invoke-WebRequest -Uri $frameworkUrl -OutFile $frameworkPath -UseBasicParsing
+$frameworkExpectedHash = "B4E773DFAEBE8716A3C16E9ECC4D3F13AC5F72EECC249DBF374C00E5F7F55E4B"
+$frameworkActualHash = (Get-FileHash -Path $frameworkPath -Algorithm SHA256).Hash
+if ($frameworkActualHash -ne $frameworkExpectedHash) {
+    Remove-Item $frameworkPath -Force
+    throw "wheels-core-${moduleVersion}.zip SHA256 mismatch: expected $frameworkExpectedHash, got $frameworkActualHash"
+}
+$frameworkDir = Join-Path $toolsDir "framework"
+if (Test-Path $frameworkDir) { Remove-Item $frameworkDir -Recurse -Force }
+Expand-Archive -Path $frameworkPath -DestinationPath $frameworkDir -Force
+Remove-Item $frameworkPath -Force
+
 # Download SQLite JDBC driver. Lucee 7's BundleProvider crashes when resolving
 # sqlite-jdbc via the bundleName hint, so wheels >=4.0 generates app.cfm
 # without the hint and relies on the JAR being on the classpath. The wrapper

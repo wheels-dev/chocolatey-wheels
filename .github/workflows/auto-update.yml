@@ -40,13 +40,26 @@ jobs:
       - name: Update install script
         if: steps.check.outputs.needs_update == 'true'
         shell: pwsh
+        env:
+          LUCLI_VER: ${{ steps.check.outputs.latest_lucli }}
+          MODULE_VER: ${{ steps.check.outputs.latest_module }}
         run: |
-          $lucliVer = "${{ steps.check.outputs.latest_lucli }}"
-          $moduleVer = "${{ steps.check.outputs.latest_module }}"
+          $lucliVer = $env:LUCLI_VER
+          $moduleVer = $env:MODULE_VER
+
+          # Recompute wheels-core SHA so the install-time integrity check
+          # matches the bumped moduleVersion. Without this the next install
+          # would throw on hash mismatch.
+          $frameworkUrl = "https://github.com/wheels-dev/wheels/releases/download/v${moduleVer}/wheels-core-${moduleVer}.zip"
+          $tempZip = Join-Path $env:RUNNER_TEMP "wheels-core-${moduleVer}.zip"
+          Invoke-WebRequest -Uri $frameworkUrl -OutFile $tempZip -UseBasicParsing
+          $frameworkSha = (Get-FileHash -Path $tempZip -Algorithm SHA256).Hash
+          Remove-Item $tempZip -Force
 
           $content = Get-Content tools/chocolateyinstall.ps1 -Raw
           $content = $content -replace 'lucliVersion = "[^"]+"', "lucliVersion = `"$lucliVer`""
           $content = $content -replace 'moduleVersion = "[^"]+"', "moduleVersion = `"$moduleVer`""
+          $content = $content -replace '\$frameworkExpectedHash = "[A-F0-9]+"', "`$frameworkExpectedHash = `"$frameworkSha`""
           Set-Content tools/chocolateyinstall.ps1 $content
 
           [xml]$nuspec = Get-Content wheels.nuspec
