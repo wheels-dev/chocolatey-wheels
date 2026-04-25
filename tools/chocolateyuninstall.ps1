@@ -12,6 +12,9 @@ foreach ($file in $filesToRemove) {
 $moduleDir = Join-Path $toolsDir "module"
 if (Test-Path $moduleDir) { Remove-Item $moduleDir -Recurse -Force }
 
+$frameworkDir = Join-Path $toolsDir "framework"
+if (Test-Path $frameworkDir) { Remove-Item $frameworkDir -Recurse -Force }
+
 $libDir = Join-Path $toolsDir "lib"
 if (Test-Path $libDir) { Remove-Item $libDir -Recurse -Force }
 

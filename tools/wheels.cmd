@@ -4,11 +4,13 @@ setlocal enabledelayedexpansion
 set "TOOLS_DIR=%~dp0"
 set "MODULE_SRC=%TOOLS_DIR%module"
 set "MODULE_DST=%USERPROFILE%\.wheels\modules\wheels"
+set "FRAMEWORK_SRC=%TOOLS_DIR%framework\wheels"
+set "FRAMEWORK_DST=%USERPROFILE%\.wheels\modules\wheels\vendor\wheels"
 set "VERSION_SRC=%MODULE_SRC%\.module-version"
 set "VERSION_DST=%MODULE_DST%\.module-version"
 set "SQLITE_JDBC_SRC=%TOOLS_DIR%lib\sqlite-jdbc-3.49.1.0.jar"
 
-:: Copy module on first run or when version changes
+:: Copy module + framework source on first run or when version changes
 if exist "%VERSION_SRC%" (
     set /p SRC_VER=<"%VERSION_SRC%"
     set "DST_VER="
@@ -16,6 +18,10 @@ if exist "%VERSION_SRC%" (
     if not "!SRC_VER!"=="!DST_VER!" (
         if not exist "%MODULE_DST%" mkdir "%MODULE_DST%"
         xcopy /E /I /Y "%MODULE_SRC%\*" "%MODULE_DST%\" >nul 2>&1
+        if exist "%FRAMEWORK_SRC%" (
+            if not exist "%FRAMEWORK_DST%" mkdir "%FRAMEWORK_DST%"
+            xcopy /E /I /Y "%FRAMEWORK_SRC%\*" "%FRAMEWORK_DST%\" >nul 2>&1
+        )
     )
 )
 
