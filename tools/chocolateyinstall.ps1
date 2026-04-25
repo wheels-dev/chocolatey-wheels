@@ -4,6 +4,7 @@ $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 $lucliVersion = "0.3.7"
 $moduleVersion = "4.0.0-SNAPSHOT+1596"
+$sqliteJdbcVersion = "3.49.1.0"
 
 # Download LuCLI Windows launcher
 $lucliUrl = "https://github.com/cybersonic/LuCLI/releases/download/v${lucliVersion}/lucli-${lucliVersion}.bat"
@@ -23,6 +24,22 @@ Remove-Item $modulePath -Force
 
 # Write version marker
 Set-Content -Path (Join-Path $moduleDir ".module-version") -Value $moduleVersion
+
+# Download SQLite JDBC driver. Lucee 7's BundleProvider crashes when resolving
+# sqlite-jdbc via the bundleName hint, so wheels >=4.0 generates app.cfm
+# without the hint and relies on the JAR being on the classpath. The wrapper
+# drops it into %USERPROFILE%\.wheels\express\<lucee>\lib\ext\ on every run.
+$libDir = Join-Path $toolsDir "lib"
+if (-not (Test-Path $libDir)) { New-Item -ItemType Directory -Path $libDir | Out-Null }
+$sqliteJdbcUrl = "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/${sqliteJdbcVersion}/sqlite-jdbc-${sqliteJdbcVersion}.jar"
+$sqliteJdbcPath = Join-Path $libDir "sqlite-jdbc-${sqliteJdbcVersion}.jar"
+Invoke-WebRequest -Uri $sqliteJdbcUrl -OutFile $sqliteJdbcPath -UseBasicParsing
+$expectedHash = "5C8609D2CA341DEB8C6F71778974B5BA4995C7D32D7C7C89D9392A3E72C39291"
+$actualHash = (Get-FileHash -Path $sqliteJdbcPath -Algorithm SHA256).Hash
+if ($actualHash -ne $expectedHash) {
+    Remove-Item $sqliteJdbcPath -Force
+    throw "sqlite-jdbc-${sqliteJdbcVersion}.jar SHA256 mismatch: expected $expectedHash, got $actualHash"
+}
 
 Write-Host "Wheels CLI installed successfully!" -ForegroundColor Green
 Write-Host "Run 'wheels --version' to verify." -ForegroundColor Cyan
