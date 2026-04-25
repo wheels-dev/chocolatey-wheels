@@ -77,5 +77,5 @@ jobs:
 
           PR_URL=$(gh pr list --head "$BRANCH" --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
-            gh pr merge "$PR_URL" --auto --squash
+            gh pr merge "$PR_URL" --squash --delete-branch
           fi
