@@ -1,0 +1,126 @@
+name: Publish to Chocolatey Gallery
+
+# Cuts a new chocolatey.org release whenever the package definition changes
+# on master. Pairs with the auto-update workflow: auto-update bumps versions
+# in a PR, and once that PR merges to master, this workflow publishes.
+#
+# Manual dispatch is supported for re-publishing without a code change
+# (e.g. if the gallery push transiently fails).
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'wheels.nuspec'
+      - 'tools/chocolateyinstall.ps1'
+      - 'tools/chocolateyuninstall.ps1'
+      - 'tools/wheels.cmd'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why are you publishing manually?'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Pack and Push
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read package version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$nuspec = Get-Content wheels.nuspec
+          $version = $nuspec.package.metadata.version
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            Write-Error "wheels.nuspec has no <version> — refusing to publish."
+            exit 1
+          }
+          # Chocolatey gallery rejects metadata-suffixed semver (e.g. "1.2.3+build").
+          # The auto-update workflow already strips the +N suffix from MODULE_VERSION
+          # when it lands the version into the nuspec, but double-check here.
+          if ($version -match '\+') {
+            Write-Error "wheels.nuspec version '$version' contains '+' — chocolatey gallery rejects build metadata. Aborting."
+            exit 1
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Publishing wheels v$version"
+
+      - name: Pre-flight — package not already in gallery
+        id: preflight
+        shell: pwsh
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Skip publish if this exact version is already on chocolatey.org.
+          # Re-pushing the same version returns HTTP 409 Conflict, which would
+          # otherwise fail the workflow noisily.
+          $existing = $null
+          try {
+            $existing = choco search wheels --exact --version $env:PKG_VERSION --source https://community.chocolatey.org/api/v2/ 2>&1
+          } catch {
+            $existing = $_.Exception.Message
+          }
+          if ($LASTEXITCODE -eq 0 -and $existing -match "1 packages found") {
+            Write-Host "::notice::wheels v$env:PKG_VERSION already published to chocolatey.org — skipping push."
+            "skip=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "skip=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Pack package
+        if: steps.preflight.outputs.skip != 'true'
+        shell: pwsh
+        run: choco pack wheels.nuspec
+
+      - name: Push to Chocolatey Gallery
+        if: steps.preflight.outputs.skip != 'true'
+        shell: pwsh
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:CHOCO_API_KEY)) {
+            Write-Error "CHOCOLATEY_API_KEY secret is not set on the repository."
+            exit 1
+          }
+          $nupkg = Get-ChildItem -Filter "wheels.*.nupkg" | Select-Object -First 1
+          if (-not $nupkg) {
+            Write-Error "No wheels.*.nupkg found after choco pack — aborting push."
+            exit 1
+          }
+          Write-Host "Pushing $($nupkg.Name) (v$env:PKG_VERSION) to chocolatey.org..."
+          choco push $nupkg.FullName --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
+
+      - name: Upload .nupkg as workflow artifact
+        if: steps.preflight.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ steps.version.outputs.version }}.nupkg
+          path: wheels.*.nupkg
+          retention-days: 30
+
+      - name: Summary
+        shell: pwsh
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+          SKIPPED: ${{ steps.preflight.outputs.skip }}
+        run: |
+          if ($env:SKIPPED -eq 'true') {
+            "## :information_source: Skipped re-publish of wheels v$env:PKG_VERSION (already in gallery)" >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            "## :package: Published wheels v$env:PKG_VERSION to chocolatey.org" >> $env:GITHUB_STEP_SUMMARY
+            "" >> $env:GITHUB_STEP_SUMMARY
+            "Listing: https://community.chocolatey.org/packages/wheels/$env:PKG_VERSION" >> $env:GITHUB_STEP_SUMMARY
+            "" >> $env:GITHUB_STEP_SUMMARY
+            "Note: chocolatey.org moderation can delay public visibility by a few minutes to hours after push." >> $env:GITHUB_STEP_SUMMARY
+          }
