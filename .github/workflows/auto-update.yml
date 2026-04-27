@@ -21,7 +21,18 @@ jobs:
   check-updates:
     runs-on: windows-latest
     steps:
+      # AUTO_MERGE_PAT (a fine-grained PAT scoped to this repo with
+      # Contents: write + Pull requests: write) is used for git push, gh pr
+      # create, and gh pr merge. Without it, those operations run under the
+      # default GITHUB_TOKEN, which suppresses the resulting push and
+      # pull_request events. That means the publish-on-merge.yml workflow
+      # (which listens for push: master) never fires after auto-update merges
+      # its PR — leaving the chocolatey gallery un-published.
+      # Falls back to GITHUB_TOKEN when the PAT secret is unset; auto-update
+      # still merges, but publish-on-merge needs to be triggered manually.
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AUTO_MERGE_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Check for updates
         id: check
@@ -95,7 +106,11 @@ jobs:
         if: steps.check.outputs.needs_update == 'true'
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # See checkout step at top of job for full rationale. Using the PAT
+          # here ensures `git push`, `gh pr create`, AND `gh pr merge` all run
+          # under credentials that propagate events — so the merge to master
+          # actually fires the publish-on-merge.yml workflow.
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT || secrets.GITHUB_TOKEN }}
         run: |
           LUCLI_VER="${{ steps.check.outputs.latest_lucli }}"
           MODULE_VER="${{ steps.check.outputs.latest_module }}"
