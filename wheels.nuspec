@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.chocolatey.org/2010/07/nuspec">
   <metadata>
     <id>wheels</id>
-    <version>0.3.7</version>
+    <version>0.3.7.1609</version>
     <title>Wheels CLI</title>
     <authors>Wheels Team</authors>
     <owners>wheels-dev</owners>
