@@ -39,21 +39,80 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Read dispatch payload via env: so user-controllable values are
+          # exposed as PowerShell environment variables ($env:DISPATCH_*),
+          # not interpolated into the script body.
+          DISPATCH_TYPE: ${{ github.event.action }}
+          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
         run: |
+          $ErrorActionPreference = 'Stop'
+
+          # Reject empty / "null" / whitespace-only version strings. Mirrors the
+          # homebrew tap's strict guard added in homebrew-wheels PR #3 — without
+          # it, an empty $latestModule silently drove needs_update=false and the
+          # gallery sat at a stale version while the workflow run reported
+          # success. Symmetric loud-failure across both taps.
+          function Assert-Version {
+            param([string]$Name, [string]$Value)
+            if ([string]::IsNullOrWhiteSpace($Value) -or $Value -eq 'null') {
+              Write-Host "::error::$Name resolved to an invalid value ('$Value'). Aborting to avoid writing a broken nuspec."
+              exit 1
+            }
+          }
+
           $installScript = Get-Content tools/chocolateyinstall.ps1 -Raw
           $currentLucli = [regex]::Match($installScript, 'lucliVersion = "([^"]+)"').Groups[1].Value
           $currentModule = [regex]::Match($installScript, 'moduleVersion = "([^"]+)"').Groups[1].Value
-          "current_lucli=$currentLucli" >> $env:GITHUB_OUTPUT
+          Assert-Version 'CURRENT_LUCLI'  $currentLucli
+          Assert-Version 'CURRENT_MODULE' $currentModule
+          "current_lucli=$currentLucli"   >> $env:GITHUB_OUTPUT
           "current_module=$currentModule" >> $env:GITHUB_OUTPUT
 
           $latestLucli = (gh release view --repo cybersonic/LuCLI --json tagName -q '.tagName') -replace '^v', ''
+          Assert-Version 'LATEST_LUCLI' $latestLucli
           "latest_lucli=$latestLucli" >> $env:GITHUB_OUTPUT
 
-          $releases = gh api '/repos/wheels-dev/wheels/releases?per_page=20' | ConvertFrom-Json
-          $latestModule = ($releases | Where-Object { $_.assets.name -match 'wheels-module.*\.zip' } | Select-Object -First 1).tag_name -replace '^v', ''
+          # Module version resolution.
+          #
+          # When triggered via repository_dispatch[wheels-released], trust the
+          # client_payload.version sent by wheels-dev/wheels' release.yml — it
+          # already knows exactly which version was just published. Querying
+          # the API in that window hits an eventual-consistency race where the
+          # release exists but the wheels-module-*.zip asset hasn't finished
+          # uploading; the asset filter then returns empty. Without a strict
+          # guard the old logic reported "no update needed" and exited 0,
+          # leaving the gallery silently stale (April 27 incident).
+          #
+          # For schedule / workflow_dispatch / lucli-released triggers, fall
+          # back to the API query but wrap it in retry-with-backoff so a cron
+          # firing inside the upload window self-heals on the same run.
+          $latestModule = ''
+          if ($env:DISPATCH_TYPE -eq 'wheels-released' `
+              -and -not [string]::IsNullOrWhiteSpace($env:DISPATCH_VERSION) `
+              -and $env:DISPATCH_VERSION -ne 'null') {
+            $latestModule = $env:DISPATCH_VERSION -replace '^v', ''
+            Write-Host "Using dispatch payload for module version: $latestModule"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($latestModule)) {
+            for ($attempt = 1; $attempt -le 5; $attempt++) {
+              $releases = gh api '/repos/wheels-dev/wheels/releases?per_page=100' | ConvertFrom-Json
+              $latestModule = ($releases `
+                | Where-Object { $_.draft -eq $false } `
+                | Where-Object { $_.assets.name -match 'wheels-module.*\.zip' } `
+                | Select-Object -First 1).tag_name -replace '^v', ''
+              if (-not [string]::IsNullOrWhiteSpace($latestModule) -and $latestModule -ne 'null') {
+                break
+              }
+              $backoff = $attempt * 15
+              Write-Host "Attempt $attempt/5: API returned no release with wheels-module-*.zip asset; retrying in $($backoff)s..."
+              Start-Sleep -Seconds $backoff
+            }
+          }
+          Assert-Version 'LATEST_MODULE' $latestModule
           "latest_module=$latestModule" >> $env:GITHUB_OUTPUT
 
-          $needsUpdate = ($currentLucli -ne $latestLucli -and $latestLucli) -or ($currentModule -ne $latestModule -and $latestModule)
+          $needsUpdate = ($currentLucli -ne $latestLucli) -or ($currentModule -ne $latestModule)
           "needs_update=$($needsUpdate.ToString().ToLower())" >> $env:GITHUB_OUTPUT
 
       - name: Update install script
