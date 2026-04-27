@@ -4,6 +4,14 @@ on:
   schedule:
     - cron: '0 9 * * *'
   workflow_dispatch:
+  # Fired by wheels-dev/wheels release workflow on every published release
+  # (snapshot or final). Cuts the wait between an upstream release and a
+  # bumped package from up-to-24h (cron) down to ~5min. The event types
+  # are static strings under our control — no untrusted input is interpolated.
+  repository_dispatch:
+    types:
+      - wheels-released
+      - lucli-released
 
 permissions:
   contents: write
@@ -62,8 +70,25 @@ jobs:
           $content = $content -replace '\$frameworkExpectedHash = "[A-F0-9]+"', "`$frameworkExpectedHash = `"$frameworkSha`""
           Set-Content tools/chocolateyinstall.ps1 $content
 
+          # Nuspec version is a 4-part NuGet version: <lucli>.<module-build-number>.
+          # This lets us cut a new chocolatey release on every upstream module bump
+          # even when LuCLI itself hasn't moved (the common case during snapshot
+          # development). NuGet/chocolatey natively support Major.Minor.Patch.Revision.
+          # Example: lucli 0.3.7 + module 4.0.0-SNAPSHOT+1606 -> nuspec 0.3.7.1606.
+          $moduleBuild = ""
+          if ($moduleVer -match '\+(\d+)$') {
+            $moduleBuild = $Matches[1]
+          }
+          if ([string]::IsNullOrWhiteSpace($moduleBuild)) {
+            # Fall back to plain lucliVer for tagged final releases that don't
+            # carry a build-number suffix.
+            $packageVersion = $lucliVer
+          } else {
+            $packageVersion = "$lucliVer.$moduleBuild"
+          }
+
           [xml]$nuspec = Get-Content wheels.nuspec
-          $nuspec.package.metadata.version = $lucliVer
+          $nuspec.package.metadata.version = $packageVersion
           $nuspec.Save("wheels.nuspec")
 
       - name: Create PR
