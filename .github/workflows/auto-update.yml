@@ -17,6 +17,26 @@ permissions:
   contents: write
   pull-requests: write
 
+# Serialize auto-update runs across all triggers (cron, workflow_dispatch,
+# repository_dispatch). Without this, two repository_dispatch events
+# arriving in quick succession — e.g., rapid-fire snapshot releases on
+# wheels-dev/wheels (snapshot+1659 and +1660 published 39s apart on
+# 2026-04-30) — produced two parallel workflows that each forked an
+# auto-update branch off the same base. After the first merged, the
+# second's merge would race against an updated master.
+#
+# This workflow already merges synchronously (`gh pr merge --squash
+# --delete-branch`, no --auto), so the merge-step fix that homebrew-wheels
+# needed isn't required here — the concurrency group alone closes the
+# race window.
+#
+# cancel-in-progress: false because we want each dispatch to actually
+# bump the package to that specific version, not skip versions when
+# they pile up.
+concurrency:
+  group: auto-update-package
+  cancel-in-progress: false
+
 jobs:
   check-updates:
     runs-on: windows-latest
