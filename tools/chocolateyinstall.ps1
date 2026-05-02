@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 $lucliVersion = "0.3.7"
-$moduleVersion = "4.0.0-SNAPSHOT+1679"
+$moduleVersion = "4.0.0-SNAPSHOT+1681"
 $sqliteJdbcVersion = "3.49.1.0"
 
 # Download LuCLI Windows launcher
@@ -32,7 +32,7 @@ Set-Content -Path (Join-Path $moduleDir ".module-version") -Value $moduleVersion
 $frameworkUrl = "https://github.com/wheels-dev/wheels/releases/download/v${moduleVersion}/wheels-core-${moduleVersion}.zip"
 $frameworkPath = Join-Path $toolsDir "wheels-core.zip"
 Invoke-WebRequest -Uri $frameworkUrl -OutFile $frameworkPath -UseBasicParsing
-$frameworkExpectedHash = "53EBED4D90C5C38A9D788C5ECF9F82A5B6BBFB50413D497C6FD513668D68B461"
+$frameworkExpectedHash = "DC91118CF32584893649C7E8F137708AD928E11F546B1D31D29F6656EB8901B7"
 $frameworkActualHash = (Get-FileHash -Path $frameworkPath -Algorithm SHA256).Hash
 if ($frameworkActualHash -ne $frameworkExpectedHash) {
     Remove-Item $frameworkPath -Force
@@ -61,6 +61,7 @@ if ($actualHash -ne $expectedHash) {
 
 Write-Host "Wheels CLI installed successfully!" -ForegroundColor Green
 Write-Host "Run 'wheels --version' to verify." -ForegroundColor Cyan
+
 
 
 
